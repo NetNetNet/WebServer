@@ -1,0 +1,16 @@
+<html>
+<header>
+<font color="green">Welcome to freegames.com !</font>
+<hr>
+</header>
+<body>
+
+<p>There is no games on this website but we can provide you with
+<p>some awesome text!
+
+<hr>
+
+BLAH BLAH BLAAAAH
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+<html>
+<header>
+<font color="blue"><b>Welcome to FootBook</b></font>
+</header>
+<body>
+Get social!
+<img src="./nej.jpg">
+</body>
+</html>
