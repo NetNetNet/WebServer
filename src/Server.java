@@ -21,8 +21,6 @@ public class Server extends JFrame {
 
 	static JTextPane textBox = new JTextPane();
 
-
-
 	public static void main(String[] args) throws BadLocationException {
 		new Server();
 		
