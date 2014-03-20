@@ -13,13 +13,17 @@ import java.awt.*;
 
 @SuppressWarnings("serial")
 public class Server extends JFrame {
-
+	
 	int PORT = 7657;
 
 	public static final String pathTowebsitefolders = "./";
 	public static final String nameoftxt = "index.txt";
 
 	static JTextPane textBox = new JTextPane();
+
+	
+	String wName = "";
+
 
 	public static void main(String[] args) throws BadLocationException {
 		new Server();
@@ -72,14 +76,16 @@ public class Server extends JFrame {
 		setVisible(true);
 
 		try {
-			ServerSocket sSocket = new ServerSocket(7657, 1000000, InetAddress.getByName("0.0.0.0"));
+			ServerSocket sSocket = new ServerSocket(PORT, 1000000, InetAddress.getByName("0.0.0.0"));
 			
 
 			appendString("Server started at: " + new Date() + "\n", textBox,"white");
 			while(true) {
 				Socket socket = sSocket.accept();
 				ClientThread cT = new ClientThread(socket);
+				
 				new Thread(cT).start();
+				
 			}
 		} catch(IOException exception) {
 			System.out.println("Error: " + exception);
@@ -93,6 +99,7 @@ public class Server extends JFrame {
 			threadSocket = socket;
 		}
 
+
 		public void run(){
 			try {
 				PrintWriter output = new PrintWriter(threadSocket.getOutputStream(), true);
@@ -104,11 +111,23 @@ public class Server extends JFrame {
 				output.println(Server.getDocument("home"));
 
 				appendString(threadSocket.getInetAddress().getHostAddress() + " has connected!"+" "+new Date()+"\n",textBox,"magneta"); 
+				
+				
+				
+
+			
 				while(true) {
 					String chatInput = input.readLine();
+					
+					
+
+					
 					String what = "is searching for";
 					System.out.println(chatInput);
 
+					
+
+					
 					if(chatInput == null){ 
 
 
@@ -121,22 +140,76 @@ public class Server extends JFrame {
 
 					if(chatInput.isEmpty()){
 						what = "is viewing a list of pages";
+						
+						
+						
 					}
+					if(chatInput.startsWith("/websitename ")){
+						System.out.println("Found /websitename command");
+						
+						
+
+						
+						
+						wName = chatInput.replaceAll("/websitename ", "");
+						
+						
+						createFolder(wName);
+						
+						output.println("ok");
+						chatInput = "post";
+						
+						appendString(threadSocket.getInetAddress().getHostAddress() + " is publishing a post called: "+wName+" "+new Date()+"\n",textBox,"magneta");
+
+						
+						
+						
+						
+
+					}
+					
+					
+					
+					else if(chatInput.startsWith("/website")){
+						System.out.println("Found /website command");
+						
+						
+						
+						String webText = chatInput.replaceAll("/website", "");
+						
+						writeToFile(wName+"/"+"index.txt",webText);
+						
+						
+						output.println("ok");
+						
+						chatInput = wName;
+						
+						
+						
+						
+	
+					}
+					
+					
 
 
-
+					System.out.println("Reached end of loop)");
 					output.println("/clear/");
 					output.println(Server.getDocument(chatInput));
 
 					appendString(threadSocket.getInetAddress().getHostAddress() +" "+what+" "+'"'+chatInput+'"'+" "+new Date()+"\n",textBox,"white");
-					if (Server.getDocument(chatInput).contains("404")){
+					if (Server.getDocument(chatInput).contains("404") && !chatInput.contains("post")){
 
 						appendString("[Could not find requested page] \n",textBox,"red");
 
 					}
 					else if (Server.getDocument(chatInput).contains("403")){
 
-						appendString(" [Page empty] \n",textBox,"red");
+						appendString("[Page empty] \n",textBox,"red");
+					}
+					else if (chatInput.contains("post")){
+
+						appendString("[Publishing post...] \n",textBox,"yellow");
 					}else{
 
 						appendString("[Page found] \n",textBox,"green");
@@ -150,6 +223,22 @@ public class Server extends JFrame {
 		}
 
 	}
+	
+	public String ReadBigStringIn(BufferedReader buffIn) {
+        StringBuilder b = new StringBuilder();
+        
+
+        try {
+            String line = buffIn.readLine();
+            while (line != null) {
+                b.append(" "+line);
+                line = buffIn.readLine();
+            }
+        }
+        catch(IOException e){};
+
+        return b.toString();
+}
 
 	public void appendString(String str,JTextPane pane,String color) throws BadLocationException
 	{
@@ -199,5 +288,34 @@ public class Server extends JFrame {
 
 		// ^ or your style attribute  
 	}
+	
+	public static void createFolder(String name){
+		File dir = new File(name);
+    	dir.mkdir();
+	}
+	
+	public static void writeToFile(String fileName,String text) throws IOException{
+		 
+		
+		
+		
+        try {
+        BufferedWriter out = new BufferedWriter(new FileWriter(fileName));
+            	
+        		
+        		
+            	
+        		
+        		
+            	
+            	
+            	out.append(text);
+                
+            	
+            
+            out.close();
+        } catch (IOException e) {}
+    
+}
 
 }
