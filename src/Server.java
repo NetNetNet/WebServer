@@ -15,7 +15,6 @@ import java.awt.*;
 public class Server extends JFrame {
 	
 	int PORT = 7657;
-
 	public static final String pathTowebsitefolders = "./";
 	public static final String nameoftxt = "index.txt";
 
