@@ -92,18 +92,48 @@ public class Server extends JFrame {
 	}
 
 	class ClientThread implements Runnable {
+		
+		private boolean op = false;
+		
 		Socket threadSocket;
+		BufferedReader input;
+		PrintWriter output;
 
 		public ClientThread(Socket socket) {
 			threadSocket = socket;
+			try {
+				output = new PrintWriter(threadSocket.getOutputStream(), true);
+				input = new BufferedReader(new InputStreamReader(threadSocket.getInputStream()));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		private void doCommand(String command){
+			if(command.startsWith("/op")){
+				if(this.op){
+					output.println("/clear/");
+					output.println("You are already op!");
+					return;
+				}else if(command.equals("/op sesamkatt123")){
+					op = true;
+					output.println("/clear/");
+					output.println("You have been granted op!");
+				}else{
+					output.println("/clear/");
+					output.println("Wrong password!");
+				}
+				return;
+			}
+			
+			
+			output.println("/clear/");
+			output.println("Unknown command!");
 		}
 
 
 		public void run(){
 			try {
-				PrintWriter output = new PrintWriter(threadSocket.getOutputStream(), true);
-				BufferedReader input = new BufferedReader(new InputStreamReader(threadSocket.getInputStream()));
-
 				output.println("You have connected to the server at: " + new Date());
 
 				//Gives the client the homepage on startup
@@ -111,45 +141,21 @@ public class Server extends JFrame {
 
 				appendString(threadSocket.getInetAddress().getHostAddress() + " has connected!"+" "+new Date()+"\n",textBox,"magneta"); 
 				
-				
-				
-
-			
 				while(true) {
 					String chatInput = input.readLine();
-					
-					
-
 					
 					String what = "is searching for";
 					System.out.println(chatInput);
 
-					
-
-					
 					if(chatInput == null){ 
-
-
-
 						appendString(threadSocket.getInetAddress().getHostAddress() + " disconnected. "+new Date()+"\n",textBox,"yellow");
 						return;
-
-
-					}
-
-					if(chatInput.isEmpty()){
+						
+					}else if(chatInput.isEmpty()){
 						what = "is viewing a list of pages";
 						
-						
-						
-					}
-					if(chatInput.startsWith("/websitename ")){
+					}else if(chatInput.startsWith("/websitename ")){
 						System.out.println("Found /websitename command");
-						
-						
-
-						
-						
 						wName = chatInput.replaceAll("/websitename ", "");
 						
 						
@@ -161,15 +167,8 @@ public class Server extends JFrame {
 						appendString(threadSocket.getInetAddress().getHostAddress() + " is publishing a post called: "+wName+" "+new Date()+"\n",textBox,"magneta");
 
 						
-						
-						
-						
 
-					}
-					
-					
-					
-					else if(chatInput.startsWith("/website")){
+					}else if(chatInput.startsWith("/website")){
 						System.out.println("Found /website command");
 						
 						
@@ -182,11 +181,9 @@ public class Server extends JFrame {
 						output.println("ok");
 						
 						chatInput = wName;
-						
-						
-						
-						
-	
+					}else if(chatInput.startsWith("/")){
+						this.doCommand(chatInput);
+						continue;
 					}
 					
 					
